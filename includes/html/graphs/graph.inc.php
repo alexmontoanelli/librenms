@@ -35,7 +35,6 @@ $noagg = ! $graph_params->visible('aggregate');
 $rrd_options = '';
 
 require Config::get('install_dir') . "/includes/html/graphs/$type/auth.inc.php";
-
 if ($auth && is_customoid_graph($type, $subtype)) {
     $unit = $vars['unit'];
     include Config::get('install_dir') . '/includes/html/graphs/customoid/customoid.inc.php';
