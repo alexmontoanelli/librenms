@@ -42,14 +42,19 @@ foreach (dbFetchRows('SELECT * FROM `bills` ORDER BY `bill_id`') as $bill) {
         // Send the current dir_95th to the getRates function so it knows to aggregate or return the max in/out value and highest direction
         $dir_95th = $bill['dir_95th'];
 
+        $billPctTypes = ['cdr', 'cdr98', 'cdr99','cdr995', 'cdr999', 'cdr100'];
+
+        $percentil = getPercentilEscolhido($bill);
+
         if ($period['period'] > 0 && $dateto > $date_updated) {
-            $rate_data = getRates($bill['bill_id'], $datefrom, $dateto, $dir_95th);
+
+            $rate_data = getRates($bill['bill_id'], $datefrom, $dateto, $dir_95th, $percentil);
             $rate_95th = $rate_data['rate_95th'];
             $dir_95th = $rate_data['dir_95th'];
             $total_data = $rate_data['total_data'];
             $rate_average = $rate_data['rate_average'];
 
-            if ($bill['bill_type'] == 'cdr') {
+            if (in_array($bill['bill_type'], $billPctTypes)) {
                 $type = 'CDR';
                 $allowed = $bill['bill_cdr'];
                 $used = $rate_data['rate_95th'];
@@ -107,6 +112,7 @@ foreach (dbFetchRows('SELECT * FROM `bills` ORDER BY `bill_id`') as $bill) {
                     'bill_used'        => $used,
                     'bill_overuse'     => $overuse,
                     'bill_percent'     => $percent,
+                    'percentil'         => $percentil,
                     'updated'          => ['NOW()'],
                 ];
 
@@ -130,6 +136,7 @@ foreach (dbFetchRows('SELECT * FROM `bills` ORDER BY `bill_id`') as $bill) {
                     'bill_allowed'     => $allowed,
                     'bill_used'        => $used,
                     'bill_overuse'     => $overuse,
+                    'percentil'         => $percentil,
                     'bill_percent'     => $percent,
                     'bill_id'          => $bill['bill_id'],
                 ];

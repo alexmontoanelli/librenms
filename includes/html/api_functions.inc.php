@@ -1559,7 +1559,7 @@ function list_bills(Illuminate\Http\Request $request)
         ';
     } else {
         $select = "SELECT bills.*,
-            IF(bills.bill_type = 'cdr', bill_cdr, bill_quota) AS bill_allowed
+            IF(bills.bill_type like 'cdr%', bill_cdr, bill_quota) AS bill_allowed
         ";
         $query = "FROM `bills`\n";
     }
@@ -1571,7 +1571,7 @@ function list_bills(Illuminate\Http\Request $request)
         $percent = '';
         $overuse = '';
 
-        if (strtolower($bill['bill_type']) == 'cdr') {
+        if (preg_match('/cdr/', strtolower($bill['bill_type']))) {
             $allowed = Number::formatSi($bill['bill_cdr'], 2, 3, '') . 'bps';
             $used = Number::formatSi($rate_data['rate_95th'], 2, 3, '') . 'bps';
             if ($bill['bill_cdr'] > 0) {
@@ -1741,7 +1741,7 @@ function delete_bill(Illuminate\Http\Request $request)
 
 function check_bill_key_value($bill_key, $bill_value)
 {
-    $bill_types = ['quota', 'cdr'];
+    $bill_types = ['quota', 'cdr','cdr98','cdr99','cdr995','cdr999','cdr100'];
 
     switch ($bill_key) {
         case 'bill_type':
@@ -1750,6 +1750,31 @@ function check_bill_key_value($bill_key, $bill_value)
             }
             break;
         case 'bill_cdr':
+            if (! is_numeric($bill_value)) {
+                return api_error(400, "Invalid value for $bill_key. Must be numeric.");
+            }
+            break;
+        case 'bill_cdr98':
+            if (! is_numeric($bill_value)) {
+                return api_error(400, "Invalid value for $bill_key. Must be numeric.");
+            }
+            break;
+        case 'bill_cdr99':
+            if (! is_numeric($bill_value)) {
+                return api_error(400, "Invalid value for $bill_key. Must be numeric.");
+            }
+            break;
+        case 'bill_cdr995':
+            if (! is_numeric($bill_value)) {
+                return api_error(400, "Invalid value for $bill_key. Must be numeric.");
+            }
+            break;
+        case 'bill_cdr999':
+            if (! is_numeric($bill_value)) {
+                return api_error(400, "Invalid value for $bill_key. Must be numeric.");
+            }
+            break;
+        case 'bill_cdr100':
             if (! is_numeric($bill_value)) {
                 return api_error(400, "Invalid value for $bill_key. Must be numeric.");
             }
@@ -1845,6 +1870,21 @@ function create_edit_bill(Illuminate\Http\Request $request)
             $data['bill_cdr'] = 0;
         }
         if ($data['bill_type'] == 'cdr') {
+            $data['bill_quota'] = 0;
+        }
+        if ($data['bill_type'] == 'cdr98') {
+            $data['bill_quota'] = 0;
+        }
+        if ($data['bill_type'] == 'cdr99') {
+            $data['bill_quota'] = 0;
+        }
+        if ($data['bill_type'] == 'cdr995') {
+            $data['bill_quota'] = 0;
+        }
+        if ($data['bill_type'] == 'cdr999') {
+            $data['bill_quota'] = 0;
+        }
+        if ($data['bill_type'] == 'cdr100') {
             $data['bill_quota'] = 0;
         }
 

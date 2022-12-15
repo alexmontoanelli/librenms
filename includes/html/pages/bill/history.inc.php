@@ -36,7 +36,7 @@ function showDetails($bill_id, $imgtype, $bill_hist_id)
     }
     $res .= '&amp;width=1190&amp;height=250';
     if (is_numeric($bill_hist_id)) {
-        $res .= '&amp;bill_hist_id=' . $bill_hist_id;
+        $res .= '&amp;reducefactor=0&amp;bill_hist_id=' . $bill_hist_id;
     }
     $res .= '" style="margin: 15px 5px 25px 5px;" />';
 
@@ -58,7 +58,7 @@ echo '<table class="table table-striped">
         <th>Peak Out</th>
         <th>Peak In</th>
         <th>Total</th>
-        <th>95th %ile</th>
+        <th>'. $percentil . 'th</th>
         <th style="text-align: center;">Overusage</th>
         <th colspan="2" style="text-align: right;"><a href="' . \LibreNMS\Util\Url::generate($vars, ['detail' => 'all']) . '">
             <i class="fa fa-bar-chart fa-lg icon-theme" aria-hidden="true" title="Show details"></i> Show details</a>
