@@ -30,7 +30,7 @@ if ($_POST['addbill'] == 'yes') {
             }
         }
 
-        if ($_POST['bill_type'] == 'cdr') {
+        if (preg_match('/cdr/', $_POST['bill_type'])) {
             if (isset($_POST['bill_cdr_type'])) {
                 if ($_POST['bill_cdr_type'] == 'Kbps') {
                     $multiplier = (1 * \LibreNMS\Config::get('billing.base'));
@@ -129,7 +129,7 @@ include 'includes/html/modal/new_bill.inc.php';
                       <option value=''>All Types</option>
                       <option value='cdr'
                             <?php
-                            if ($_GET['bill_type'] === 'cdr') {
+                            if (preg_match('/cdr/', $_GET['bill_type'])) {
                                 echo 'selected';
                             }
                             ?>>CDR</option>
