@@ -58,7 +58,7 @@ echo '<table class="table table-striped">
         <th>Peak Out</th>
         <th>Peak In</th>
         <th>Total</th>
-        <th>95th %ile</th>
+        <th>'. $percentil . 'th</th>
         <th style="text-align: center;">Overusage</th>
         <th colspan="2" style="text-align: right;"><a href="' . \LibreNMS\Util\Url::generate($vars, ['detail' => 'all']) . '">
             <i class="fa fa-bar-chart fa-lg icon-theme" aria-hidden="true" title="Show details"></i> Show details</a>

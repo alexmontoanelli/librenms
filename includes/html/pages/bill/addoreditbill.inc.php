@@ -17,6 +17,38 @@
             ?> onchange="javascript: billType();" /> CDR 95th
     </label>
     <label class="radio-inline">
+      <input type="radio" name="bill_type" id="bill_type_cdr98" value="cdr98"
+            <?php
+            if ($bill_data['bill_type'] == 'cdr98') {
+                echo 'checked';
+            }
+            ?> onchange="javascript: billType();" /> CDR 98th
+    </label>
+    <label class="radio-inline">
+      <input type="radio" name="bill_type" id="bill_type_cdr99" value="cdr99"
+            <?php
+            if ($bill_data['bill_type'] == 'cdr99') {
+                echo 'checked';
+            }
+            ?> onchange="javascript: billType();" /> CDR 99th
+    </label>
+    <label class="radio-inline">
+      <input type="radio" name="bill_type" id="bill_type_cdr999" value="cdr999"
+            <?php
+            if ($bill_data['bill_type'] == 'cdr999') {
+                echo 'checked';
+            }
+            ?> onchange="javascript: billType();" /> CDR 99.9th
+    </label>
+      <label class="radio-inline">
+          <input type="radio" name="bill_type" id="bill_type_cdr100" value="cdr100"
+              <?php
+              if ($bill_data['bill_type'] == 'cdr100') {
+                  echo 'checked';
+              }
+              ?> onchange="javascript: billType();" /> CDR 100th (pico)
+      </label>
+    <label class="radio-inline">
       <input type="radio" name="bill_type" id="bill_type_quota" value="quota"
             <?php
             if ($bill_data['bill_type'] == 'quota') {
@@ -39,7 +71,7 @@
         <option <?php echo $cdr['select_gbps'] ?> value="Gbps">Gigabits per second (Gbps)</option>
       </select>
     </div>
-    <label class="col-sm-4 control-label" for="dir_95th">95th Calculation</label>
+    <label class="col-sm-4 control-label" for="dir_95th">Percentil Calculation</label>
     <div class="col-sm-8">
       <label class="radio-inline">
        <input type="radio" name="dir_95th" id="dir_95th_inout" value="in"
@@ -72,6 +104,7 @@
       </select>
     </div>
   </div>
+
 </div>
 <div class="form-group">
   <label class="col-sm-4 control-label" for="bill_day">Billing Day</label>
@@ -112,7 +145,7 @@
 function billType() {
     var selected = $('input[name=bill_type]:checked').val();
 
-    $('#cdrDiv').toggle(selected === 'cdr');
+    $('#cdrDiv').toggle(selected === 'cdr' || selected == 'cdr98' || selected == 'cdr99' || selected == 'cdr999' || selected == 'cdr100');
     $('#quotaDiv').toggle(selected === 'quota');
 }
 billType();

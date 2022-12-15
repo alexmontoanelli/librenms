@@ -35,7 +35,7 @@ if ($bill_data['bill_type'] == 'quota') {
     }
 }//end if
 
-if ($bill_data['bill_type'] == 'cdr') {
+if (preg_match('/cdr/', $bill_data['bill_type'])) {
     $data = $bill_data['bill_cdr'];
     $tmp['kbps'] = ($data / $base);
     $tmp['mbps'] = ($data / $base / $base);
@@ -116,7 +116,7 @@ if ($bill_data['bill_type'] == 'cdr') {
                         <input type="hidden" name="action" value="delete_bill_port" />
                         <input type="hidden" name="port_id" value="<?php echo $port['port_id'] ?>" />
                     </form>
-                    
+
                     <button class="btn btn-danger btn-xs pull-right" onclick="if (confirm('Are you sure you wish to remove this port?')) { document.forms['delete<?php echo $port['port_id'] ?>'].submit(); }">
                         <i class="fa fa-minus"></i>
                         Remove Interface
@@ -130,9 +130,9 @@ if ($bill_data['bill_type'] == 'cdr') {
                 if (! $emptyCheck) { ?>
                 <div class="alert alert-info">There are no ports assigned to this bill</alert>
                 <?php                   } ?>
-            
+
             </div>
-                
+
                 <?php
             }
             $port_device_id = -1;
@@ -140,12 +140,12 @@ if ($bill_data['bill_type'] == 'cdr') {
         </div>
 
         <h4>Add Port</h4>
-        
+
         <form action="" method="post" class="form-horizontal" role="form">
             <?php echo csrf_field() ?>
             <input type="hidden" name="action" value="add_bill_port" />
             <input type="hidden" name="bill_id" value="<?php echo $bill_id; ?>" />
-            
+
             <div class="form-group">
                 <label class="col-sm-2 control-label" for="device">Device</label>
                 <div class="col-sm-8">

@@ -11,6 +11,8 @@ if (Auth::user()->hasGlobalAdmin()) {
 if (bill_permitted($bill_id)) {
     $bill_data = dbFetchRow('SELECT * FROM bills WHERE bill_id = ?', [$bill_id]);
 
+    $percentil = getPercentilEscolhido($bill_data);
+
     $bill_name = $bill_data['bill_name'];
 
     $today = str_replace('-', '', dbFetchCell('SELECT CURDATE()'));
@@ -137,9 +139,9 @@ if (bill_permitted($bill_id)) {
 
         <?php   if ($bill_data['bill_type'] == 'quota') { ?>
     <h3>Quota Bill</h3>
-        <?php   } elseif ($bill_data['bill_type'] == 'cdr') {  ?>
+        <?php   } elseif (preg_match('/cdr/', $bill_data['bill_type'])) {  ?>
     <h3>
-        CDR / 95th Bill
+        CDR / <?php echo $percentil; ?>th Bill
     </h3>
         <?php           } ?>
 <strong>Billing Period from <?php echo $fromtext ?> to <?php echo $totext ?></strong>
@@ -177,16 +179,17 @@ if (bill_permitted($bill_id)) {
             echo 'Predicted usage: ' . format_bytes_billing(getPredictedUsage($bill_data['bill_day'], $bill_data['total_data'])); ?>
             </td>
             <?php
-        } elseif ($bill_data['bill_type'] == 'cdr') {
+        } elseif (preg_match('/cdr/', $bill_data['bill_type'])) {
             // The customer is billed based on a CDR with 95th%ile overage
             $unit = 'kbps';
             $cdr = $bill_data['bill_cdr'];
             $rate_95th = round($rate_95th, 2);
             $percent = Number::calculatePercent($rate_95th, $cdr);
             $background = \LibreNMS\Util\Color::percentage($percent, null);
+            $percentil = getPercentilEscolhido($bill_data);
             $type = '&amp;95th=yes'; ?>
         <td>
-            <?php echo Number::formatSi($rate_95th, 2, 3, '') . 'bps' ?> of <?php echo Number::formatSi($cdr, 2, 3, '') . 'bps (' . $percent . '%)' ?> (95th%ile)
+            <?php echo Number::formatSi($rate_95th, 2, 3, '') . 'bps' ?> of <?php echo Number::formatSi($cdr, 2, 3, '') . 'bps (' . $percent . '%)' ?> (<?php echo $percentil; ?>th%ile)
         </td>
         <td style="width: 210px;">
             <?php echo print_percentage_bar(200, 20, $percent, null, 'ffffff', $background['left'], $percent . '%', 'ffffff', $background['right']) ?>
@@ -223,6 +226,11 @@ if (bill_permitted($bill_id)) {
             $li .= '&amp;x=1190&amp;y=250';
             $li .= "$type'>";
 
+            $todayView = "<img src='billing-graph.php?bill_id=" . $bill_id . '&amp;bill_code=' . $_GET['bill_code'];
+            $todayView .= '&amp;from=' . today()->startOfDay()->timestamp . '&amp;to=' . today()->endOfDay()->timestamp;
+            $todayView .= '&amp;x=1190&amp;y=250';
+            $todayView .= "$type'>";
+
             $di = "<img src='billing-graph.php?bill_id=" . $bill_id . '&amp;bill_code=' . htmlspecialchars($_GET['bill_code']);
             $di .= '&amp;from=' . \LibreNMS\Config::get('time.day') . '&amp;to=' . \LibreNMS\Config::get('time.now');
             $di .= '&amp;x=1190&amp;y=250';
@@ -240,6 +248,10 @@ if (bill_permitted($bill_id)) {
             $li = "<img src='graph.php?type=bill_bits&amp;id=" . $bill_id;
             $li .= '&amp;from=' . $unix_prev_from . '&amp;to=' . $unix_prev_to;
             $li .= '&amp;width=1000&amp;height=200&amp;total=1&amp;dir=' . $dir_95th . "'>";
+
+            $todayView = "<img src='graph.php?type=bill_bits&amp;id=" . $bill_id;
+            $todayView .= '&amp;from=' . today()->startOfDay()->timestamp . '&amp;to=' . today()->endOfDay()->timestamp;
+            $todayView .= '&amp;width=1000&amp;height=200&amp;total=1&amp;dir=' . $dir_95th . "'>";
 
             $di = "<img src='graph.php?type=bill_bits&amp;id=" . $bill_id;
             $di .= '&amp;from=' . \LibreNMS\Config::get('time.day') . '&amp;to=' . \LibreNMS\Config::get('time.now');
@@ -260,9 +272,16 @@ if (bill_permitted($bill_id)) {
 
 <div class="panel panel-default">
 <div class="panel-heading">
-    <h3 class="panel-title">24 Hour View</h3>
+    <h3 class="panel-title">Today View</h3>
 </div>
-        <?php echo $di ?>
+        <?php echo $todayView ?>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">24 Hour View</h3>
+    </div>
+    <?php echo $di ?>
 </div>
 
 <div class="panel panel-default">
