@@ -56,7 +56,7 @@ if ($_POST['action'] == 'update_bill') {
             }
         }
 
-        if ($_POST['bill_type'] == 'cdr') {
+        if (preg_match('/cdr/', $_POST['bill_type'])) {
             if (isset($_POST['bill_cdr_type'])) {
                 if ($_POST['bill_cdr_type'] == 'Kbps') {
                     $multiplier = (1 * \LibreNMS\Config::get('billing.base'));

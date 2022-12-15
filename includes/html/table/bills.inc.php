@@ -21,15 +21,15 @@ if (! empty($vars['bill_type'])) {
 if (! empty($vars['state'])) {
     if ($vars['state'] === 'under') {
         if ($prev) {
-            $wheres[] = "((bill_history.bill_type = 'cdr' AND bill_history.rate_95th <= bill_history.bill_allowed) OR (bill_history.bill_type = 'quota' AND bill_history.traf_total <= bill_history.bill_allowed))";
+            $wheres[] = "((bill_history.bill_type like 'cdr%' AND bill_history.rate_95th <= bill_history.bill_allowed) OR (bill_history.bill_type = 'quota' AND bill_history.traf_total <= bill_history.bill_allowed))";
         } else {
-            $wheres[] = "((bill_type = 'cdr' AND rate_95th <= bill_cdr) OR (bill_type = 'quota' AND total_data <= bill_quota))";
+            $wheres[] = "((bill_type like 'cdr%' AND rate_95th <= bill_cdr) OR (bill_type = 'quota' AND total_data <= bill_quota))";
         }
     } elseif ($vars['state'] === 'over') {
         if ($prev) {
-            $wheres[] = "((bill_history.bill_type = 'cdr' AND bill_history.rate_95th > bill_history.bill_allowed) OR (bill_history.bill_type = 'quota' AND bill_history.traf_total > bill_allowed))";
+            $wheres[] = "((bill_history.bill_type like 'cdr%' AND bill_history.rate_95th > bill_history.bill_allowed) OR (bill_history.bill_type = 'quota' AND bill_history.traf_total > bill_allowed))";
         } else {
-            $wheres[] = "((bill_type = 'cdr' AND rate_95th > bill_cdr) OR (bill_type = 'quota' AND total_data > bill_quota))";
+            $wheres[] = "((bill_type like 'cdr%' AND rate_95th > bill_cdr) OR (bill_type = 'quota' AND total_data > bill_quota))";
         }
     }
 }
@@ -42,7 +42,7 @@ if ($prev) {
 ';
 } else {
     $select = "SELECT bills.*,
-        IF(bills.bill_type = 'CDR', bill_cdr, bill_quota) AS bill_allowed
+        IF(bills.bill_type like 'CDR%', bill_cdr, bill_quota) AS bill_allowed
     ";
     $query = "FROM `bills`\n";
 }
@@ -102,7 +102,7 @@ foreach (dbFetchRows($sql, $param) as $bill) {
     } else {
     }
 
-    if (strtolower($bill['bill_type']) == 'cdr') {
+    if (preg_match('/cdr/', strtolower($bill['bill_type']))) {
         $type = 'CDR';
         $allowed = Number::formatSi($bill['bill_allowed'], 2, 3, '') . 'bps';
         $in = Number::formatSi($bill['rate_95th_in'], 2, 3, '') . 'bps';
@@ -151,7 +151,7 @@ foreach (dbFetchRows($sql, $param) as $bill) {
         $actions .= "<a href='" . \LibreNMS\Util\Url::generate(['page' => 'bill', 'bill_id' => $bill['bill_id'], 'view' => 'edit']) .
             "'><i class='fa fa-pencil fa-lg icon-theme' title='Edit' aria-hidden='true'></i> Edit</a> ";
     }
-    if (strtolower($bill['bill_type']) == 'cdr') {
+    if (preg_match('/cdr/', strtolower($bill['bill_type']))) {
         $predicted = Number::formatSi(getPredictedUsage($bill['bill_day'], $tmp_used), 2, 3, '') . 'bps';
     } elseif (strtolower($bill['bill_type']) == 'quota') {
         $predicted = format_bytes_billing(getPredictedUsage($bill['bill_day'], $tmp_used));

@@ -118,12 +118,31 @@ function getLastMeasurement($bill_id)
     return $return;
 }//end getLastMeasurement()
 
-function get95thagg($bill_id, $datefrom, $dateto)
+
+function getPercentilEscolhido($bill){
+
+    switch($bill['bill_type']){
+        case 'cdr100':
+            return 100;
+        case 'cdr98':
+            return 98;
+        case 'cdr99':
+            return 99;
+        case 'cdr999':
+            return 99.9;
+        default:
+            return 95;
+    }
+
+
+}
+
+function get95thagg($bill_id, $datefrom, $dateto, $percentil = 95)
 {
     $mq_sql = 'SELECT count(delta) FROM bill_data WHERE bill_id = ?';
     $mq_sql .= ' AND timestamp > ? AND timestamp <= ?';
     $measurements = dbFetchCell($mq_sql, [$bill_id, $datefrom, $dateto]);
-    $measurement_95th = (round($measurements / 100 * 95) - 1);
+    $measurement_95th = (round(($measurements / 100 * $percentil)) - 1);
 
     $q_95_sql = 'SELECT (delta / period * 8) AS rate FROM bill_data  WHERE bill_id = ?';
     $q_95_sql .= ' AND timestamp > ? AND timestamp <= ? ORDER BY rate ASC';
@@ -133,12 +152,12 @@ function get95thagg($bill_id, $datefrom, $dateto)
     return round($m_95th, 2);
 }//end get95thagg()
 
-function get95thIn($bill_id, $datefrom, $dateto)
+function get95thIn($bill_id, $datefrom, $dateto, $percentil = 95)
 {
     $mq_sql = 'SELECT count(delta) FROM bill_data WHERE bill_id = ?';
     $mq_sql .= ' AND timestamp > ? AND timestamp <= ?';
     $measurements = dbFetchCell($mq_sql, [$bill_id, $datefrom, $dateto]);
-    $measurement_95th = (round($measurements / 100 * 95) - 1);
+    $measurement_95th = (round(($measurements / 100 * $percentil)) - 1);
 
     $q_95_sql = 'SELECT (in_delta / period * 8) AS rate FROM bill_data  WHERE bill_id = ?';
     $q_95_sql .= ' AND timestamp > ? AND timestamp <= ? ORDER BY rate ASC';
@@ -148,12 +167,12 @@ function get95thIn($bill_id, $datefrom, $dateto)
     return round($m_95th, 2);
 }//end get95thIn()
 
-function get95thout($bill_id, $datefrom, $dateto)
+function get95thout($bill_id, $datefrom, $dateto, $percentil)
 {
     $mq_sql = 'SELECT count(delta) FROM bill_data WHERE bill_id = ?';
     $mq_sql .= ' AND timestamp > ? AND timestamp <= ?';
     $measurements = dbFetchCell($mq_sql, [$bill_id, $datefrom, $dateto]);
-    $measurement_95th = (round($measurements / 100 * 95) - 1);
+    $measurement_95th = (round(($measurements / 100 * $percentil)) - 1);
 
     $q_95_sql = 'SELECT (out_delta / period * 8) AS rate FROM bill_data  WHERE bill_id = ?';
     $q_95_sql .= ' AND timestamp > ? AND timestamp <= ? ORDER BY rate ASC';
@@ -163,7 +182,7 @@ function get95thout($bill_id, $datefrom, $dateto)
     return round($m_95th, 2);
 }//end get95thout()
 
-function getRates($bill_id, $datefrom, $dateto, $dir_95th)
+function getRates($bill_id, $datefrom, $dateto, $dir_95th, $percentil = 95)
 {
     $data = [];
 
@@ -173,11 +192,11 @@ function getRates($bill_id, $datefrom, $dateto, $dir_95th)
     $mtot_out = $sum_data['outbound'];
     $ptot = $sum_data['period'];
 
-    $data['rate_95th_in'] = get95thIn($bill_id, $datefrom, $dateto);
-    $data['rate_95th_out'] = get95thout($bill_id, $datefrom, $dateto);
+    $data['rate_95th_in'] = get95thIn($bill_id, $datefrom, $dateto, $percentil);
+    $data['rate_95th_out'] = get95thout($bill_id, $datefrom, $dateto, $percentil);
 
     if ($dir_95th == 'agg') {
-        $data['rate_95th'] = get95thagg($bill_id, $datefrom, $dateto);
+        $data['rate_95th'] = get95thagg($bill_id, $datefrom, $dateto, $percentil);
         $data['dir_95th'] = 'agg';
     } else {
         if ($data['rate_95th_out'] > $data['rate_95th_in']) {
