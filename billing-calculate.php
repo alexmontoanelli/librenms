@@ -112,6 +112,7 @@ foreach (dbFetchRows('SELECT * FROM `bills` ORDER BY `bill_id`') as $bill) {
                     'bill_used'        => $used,
                     'bill_overuse'     => $overuse,
                     'bill_percent'     => $percent,
+                    'percentil'         => $percentil,
                     'updated'          => ['NOW()'],
                 ];
 
@@ -135,6 +136,7 @@ foreach (dbFetchRows('SELECT * FROM `bills` ORDER BY `bill_id`') as $bill) {
                     'bill_allowed'     => $allowed,
                     'bill_used'        => $used,
                     'bill_overuse'     => $overuse,
+                    'percentil'         => $percentil,
                     'bill_percent'     => $percent,
                     'bill_id'          => $bill['bill_id'],
                 ];
