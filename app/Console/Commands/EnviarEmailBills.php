@@ -40,8 +40,8 @@ class EnviarEmailBills extends Command
     public function handle()
     {
 
-        $urlApi = 'http://librenms.w8telecom.com.br';
-        $token = '5729ebef0827600d97e1339f2270d9b3';
+        $urlApi =  env('W8_LIBRENMS_URL', 'http://librenms.w8telecom.com.br');
+        $token = env('W8-LIBRENMS_TOKEN','5729ebef0827600d97e1339f2270d9b3');
 
         $bills = \Http::
             withHeaders(['X-Auth-Token' => $token])
@@ -88,9 +88,15 @@ class EnviarEmailBills extends Command
 
     private function _makeEmail($bill, $history, $localPath, $remotePath){
 
-        \Mail::to('alexmontoanelli@gmail.com')
-            ->send(new BillingMail($bill, $history, $localPath, $remotePath));
+        $emails = collect(explode(',', env('W8_EMAILS', ['alexmontoanelli@gmail.com'])));
 
+        $mailable = new BillingMail($bill, $history, $localPath, $remotePath);
+
+        $emails->each(function($email) use ($mailable){
+            $mailable->to($email);
+        });
+
+        \Mail::send($mailable);
 
     }
 }
