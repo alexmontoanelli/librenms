@@ -42,8 +42,10 @@ class EnviarEmailBills extends Command
         $this->info('Coletando bills');
 
         $urlApi =  env('W8_LIBRENMS_URL', 'http://librenms.w8telecom.com.br');
-        $token = env('W8-LIBRENMS_TOKEN','5729ebef0827600d97e1339f2270d9b3');
+        $token = env('W8_LIBRENMS_TOKEN','5729ebef0827600d97e1339f2270d9b3');
 
+        $_billsIgnorar = env('W8_LIBRENMS_BILL_IGNORAR','');
+        $billsIgnorar = collect(explode(',', $_billsIgnorar));
 
         $bills = \Http::
             withHeaders(['X-Auth-Token' => $token])
@@ -51,6 +53,10 @@ class EnviarEmailBills extends Command
             ->json();
 
         foreach ($bills['bills'] as $bill){
+
+            if ($billsIgnorar->contains($bill['bill_id'])){
+                continue;
+            }
 
             rescue(fn() => $this->_processaBill($bill, $urlApi, $token), function($e){
                 $this->error('Erro ao processar ' . $e->getMessage());
