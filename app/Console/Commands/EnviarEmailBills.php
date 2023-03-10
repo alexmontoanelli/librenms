@@ -52,43 +52,65 @@ class EnviarEmailBills extends Command
 
         foreach ($bills['bills'] as $bill){
 
-            $this->info('Processando bill ' . $bill['bill_name']);
-
-            if (env('W8_MAIL_PRODUCAO', false) == false)
-                if ($bill['bill_id'] != 13) continue;
-
-            if (count($bill['ports']) == 0) continue;
-
-            $historyResponse = \Http::withHeaders(['X-Auth-Token' => $token])
-                ->get("$urlApi/api/v0/bills/{$bill['bill_id']}/history")
-                ->json();
-
-            $history = $historyResponse['bill_history'];
-
-            array_shift($history);
-
-            $history = array_slice($history, 0, 13);
-
-            $grpah = \Http::get("http://librenms.w8telecom.com.br/api/v0/bills/{$bill['bill_id']}/history/{$history[0]['bill_hist_id']}/graphs/bits", ['api_token'=>'5729ebef0827600d97e1339f2270d9b3', 'output' => 'base64'])
-                ->body();
-
-            $grpah = substr($grpah, 0, -66);
-
-            $fileName = md5($history[0]['bill_hist_id']) . '.png';
-
-            $localPath = \Storage::disk('public')->path($fileName);
-
-            \Storage::disk('public')->put($fileName, $grpah);
-
-            $remotePath =  \Storage::disk('public')->url($fileName);
-
-            $this->_makeEmail($bill, $history, $localPath, $remotePath);
+            rescue(fn() => $this->_processaBill($bill, $urlApi, $token), function($e){
+                $this->error('Erro ao processar ' . $e->getMessage());
+            });
 
         }
 
         return 0;
     }
 
+    private function _processaBill($bill, $urlApi, $token){
+
+        $this->info('Processando bill ' . $bill['bill_name']);
+
+//            if (env('W8_MAIL_PRODUCAO', false) == false)
+//                if ($bill['bill_id'] != 13) continue;
+
+        if (count($bill['ports']) == 0) return;
+
+        $historyResponse = \Http::withHeaders(['X-Auth-Token' => $token])
+            ->get("$urlApi/api/v0/bills/{$bill['bill_id']}/history")
+            ->json();
+
+        $history = $historyResponse['bill_history'];
+
+        if (count($history) == 0){
+            $this->warn('Sem historico (1)');
+            return;
+        }
+
+        array_shift($history);
+
+        $history = array_slice($history, 0, 13);
+
+        if (count($history) == 0){
+            $this->warn('Sem historico (2)');
+            return;
+        }
+
+        $grpah = \Http::get("http://librenms.w8telecom.com.br/api/v0/bills/{$bill['bill_id']}/history/{$history[0]['bill_hist_id']}/graphs/bits", ['api_token'=>'5729ebef0827600d97e1339f2270d9b3', 'output' => 'base64']);
+
+        if (!$grpah->successful()){
+            $this->error('Erro ao pegar imagem');
+            $this->warn($grpah->body());
+            return;
+        }
+
+        $grpah = substr($grpah, 0, -66);
+
+        $fileName = md5($history[0]['bill_hist_id']) . '.png';
+
+        $localPath = \Storage::disk('public')->path($fileName);
+
+        \Storage::disk('public')->put($fileName, $grpah);
+
+        $remotePath =  \Storage::disk('public')->url($fileName);
+
+        //$this->_makeEmail($bill, $history, $localPath, $remotePath);
+
+    }
 
 
     private function _makeEmail($bill, $history, $localPath, $remotePath){
