@@ -63,12 +63,16 @@ class EnviarEmailBills extends Command
 
     private function _processaBill($bill, $urlApi, $token){
 
+
+            if (env('W8_MAIL_PRODUCAO', false) == false)
+                if ($bill['bill_id'] != 13) return;
+
         $this->info('Processando bill ' . $bill['bill_name']);
 
-//            if (env('W8_MAIL_PRODUCAO', false) == false)
-//                if ($bill['bill_id'] != 13) continue;
-
-        if (count($bill['ports']) == 0) return;
+        if (count($bill['ports']) == 0) {
+            $this->warn('Ignorando, sem portas');
+            return;
+        };
 
         $historyResponse = \Http::withHeaders(['X-Auth-Token' => $token])
             ->get("$urlApi/api/v0/bills/{$bill['bill_id']}/history")
@@ -108,7 +112,7 @@ class EnviarEmailBills extends Command
 
         $remotePath =  \Storage::disk('public')->url($fileName);
 
-        //$this->_makeEmail($bill, $history, $localPath, $remotePath);
+        $this->_makeEmail($bill, $history, $localPath, $remotePath);
 
     }
 
