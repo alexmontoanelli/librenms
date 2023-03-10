@@ -8,6 +8,7 @@
 
 # Gráfico último período ({{substr($history[0]['bill_datefrom'],0,7)}})
 <img src="{{$remotePath}}" alt="Gráfico" />
+({{$remotePath}})
 
 - Contratado: {{str_pad(LibreNMS\Util\Number::formatSi($history[0]['bill_allowed'],2,3,'bps'), 10, ' ', STR_PAD_LEFT)}}
 - Excedente: {{str_pad(LibreNMS\Util\Number::formatSi($history[0]['bill_overuse'],2,3,'bps'), 10, ' ', STR_PAD_LEFT)}}
