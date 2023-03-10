@@ -39,9 +39,11 @@ class EnviarEmailBills extends Command
      */
     public function handle()
     {
+        $this->info('Coletando bills');
 
         $urlApi =  env('W8_LIBRENMS_URL', 'http://librenms.w8telecom.com.br');
         $token = env('W8-LIBRENMS_TOKEN','5729ebef0827600d97e1339f2270d9b3');
+
 
         $bills = \Http::
             withHeaders(['X-Auth-Token' => $token])
@@ -50,7 +52,10 @@ class EnviarEmailBills extends Command
 
         foreach ($bills['bills'] as $bill){
 
-            if ($bill['bill_id'] != 13) continue;
+            $this->info('Processando bill ' . $bill['bill_name']);
+
+            if (env('W8_MAIL_PRODUCAO', false) == false)
+                if ($bill['bill_id'] != 13) continue;
 
             if (count($bill['ports']) == 0) continue;
 
@@ -75,7 +80,7 @@ class EnviarEmailBills extends Command
 
             \Storage::disk('public')->put($fileName, $grpah);
 
-            $remotePath = config('app.url') .  \Storage::disk('public')->url($fileName);
+            $remotePath =  \Storage::disk('public')->url($fileName);
 
             $this->_makeEmail($bill, $history, $localPath, $remotePath);
 
@@ -88,7 +93,12 @@ class EnviarEmailBills extends Command
 
     private function _makeEmail($bill, $history, $localPath, $remotePath){
 
-        $emails = collect(explode(',', env('W8_EMAILS', ['alexmontoanelli@gmail.com'])));
+        $emails = collect(explode(',', env('W8_EMAILS', '')));
+
+        if ($emails->count() == 0){
+            $this->warn('Email não fornecido');
+            return;
+        }
 
         $mailable = new BillingMail($bill, $history, $localPath, $remotePath);
 
