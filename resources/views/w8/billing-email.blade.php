@@ -8,7 +8,8 @@
 
 # Gráfico último período ({{substr($history[0]['bill_datefrom'],0,7)}})
 <img src="{{$remotePath}}" alt="Gráfico" />
-({{$remotePath}})
+<br />
+<a href="{{$remotePath}}">link imagem</a>
 
 - Contratado: {{str_pad(LibreNMS\Util\Number::formatSi($history[0]['bill_allowed'],2,3,'bps'), 10, ' ', STR_PAD_LEFT)}}
 - Excedente: {{str_pad(LibreNMS\Util\Number::formatSi($history[0]['bill_overuse'],2,3,'bps'), 10, ' ', STR_PAD_LEFT)}}
@@ -26,9 +27,9 @@ array_shift($history);
 @endphp
 @foreach($history as $h)
 @if ($h['bill_overuse'] > 0)
-{{substr($h['bill_datefrom'],0,7)}}    {{str_pad(LibreNMS\Util\Number::formatSi($h['bill_allowed'],2,3,'bps'), 10, ' ', STR_PAD_LEFT)}}          {{str_pad(LibreNMS\Util\Number::formatSi($h['bill_overuse'],2,3,'bps'), 10,' ', STR_PAD_LEFT)}}
+{{substr($h['bill_datefrom'],0,7)}}    {{$h['percentil'] ?? '95%'}}    {{str_pad(LibreNMS\Util\Number::formatSi($h['bill_allowed'],2,3,'bps'), 10, ' ', STR_PAD_LEFT)}}          {{str_pad(LibreNMS\Util\Number::formatSi($h['bill_overuse'],2,3,'bps'), 10,' ', STR_PAD_LEFT)}}
 @else
-{{substr($h['bill_datefrom'],0,7)}}    {{str_pad(LibreNMS\Util\Number::formatSi($h['bill_allowed'],2,3,'bps'), 10, ' ', STR_PAD_LEFT)}}          -
+{{substr($h['bill_datefrom'],0,7)}}    {{$h['percentil'] ?? '95%'}}    {{str_pad(LibreNMS\Util\Number::formatSi($h['bill_allowed'],2,3,'bps'), 10, ' ', STR_PAD_LEFT)}}          -
 @endif
 @endforeach
 ````
