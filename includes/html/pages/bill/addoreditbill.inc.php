@@ -32,14 +32,22 @@
             }
             ?> onchange="javascript: billType();" /> CDR 99th
     </label>
-    <label class="radio-inline">
+      <label class="radio-inline">
+          <input type="radio" name="bill_type" id="bill_type_cdr995" value="cdr995"
+              <?php
+              if ($bill_data['bill_type'] == 'cdr995') {
+                  echo 'checked';
+              }
+              ?> onchange="javascript: billType();" /> CDR 99.5th
+      </label>
+      <label class="radio-inline">
       <input type="radio" name="bill_type" id="bill_type_cdr999" value="cdr999"
             <?php
             if ($bill_data['bill_type'] == 'cdr999') {
                 echo 'checked';
             }
             ?> onchange="javascript: billType();" /> CDR 99.9th
-    </label>
+        </label>
       <label class="radio-inline">
           <input type="radio" name="bill_type" id="bill_type_cdr100" value="cdr100"
               <?php
@@ -145,7 +153,7 @@
 function billType() {
     var selected = $('input[name=bill_type]:checked').val();
 
-    $('#cdrDiv').toggle(selected === 'cdr' || selected == 'cdr98' || selected == 'cdr99' || selected == 'cdr999' || selected == 'cdr100');
+    $('#cdrDiv').toggle(selected === 'cdr' || selected == 'cdr98' || selected == 'cdr99' ||  selected == 'cdr995' || selected == 'cdr999' || selected == 'cdr100');
     $('#quotaDiv').toggle(selected === 'quota');
 }
 billType();
