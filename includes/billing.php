@@ -128,6 +128,8 @@ function getPercentilEscolhido($bill){
             return 98;
         case 'cdr99':
             return 99;
+        case 'cdr995':
+            return 99.5;
         case 'cdr999':
             return 99.9;
         default:

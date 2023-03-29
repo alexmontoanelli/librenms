@@ -42,7 +42,7 @@ foreach (dbFetchRows('SELECT * FROM `bills` ORDER BY `bill_id`') as $bill) {
         // Send the current dir_95th to the getRates function so it knows to aggregate or return the max in/out value and highest direction
         $dir_95th = $bill['dir_95th'];
 
-        $billPctTypes = ['cdr', 'cdr98', 'cdr99', 'cdr999', 'cdr100'];
+        $billPctTypes = ['cdr', 'cdr98', 'cdr99','cdr995', 'cdr999', 'cdr100'];
 
         $percentil = getPercentilEscolhido($bill);
 

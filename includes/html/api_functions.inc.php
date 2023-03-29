@@ -1741,7 +1741,7 @@ function delete_bill(Illuminate\Http\Request $request)
 
 function check_bill_key_value($bill_key, $bill_value)
 {
-    $bill_types = ['quota', 'cdr','cdr98','cdr99','cdr999','cdr100'];
+    $bill_types = ['quota', 'cdr','cdr98','cdr99','cdr995','cdr999','cdr100'];
 
     switch ($bill_key) {
         case 'bill_type':
@@ -1760,6 +1760,11 @@ function check_bill_key_value($bill_key, $bill_value)
             }
             break;
         case 'bill_cdr99':
+            if (! is_numeric($bill_value)) {
+                return api_error(400, "Invalid value for $bill_key. Must be numeric.");
+            }
+            break;
+        case 'bill_cdr995':
             if (! is_numeric($bill_value)) {
                 return api_error(400, "Invalid value for $bill_key. Must be numeric.");
             }
@@ -1871,6 +1876,9 @@ function create_edit_bill(Illuminate\Http\Request $request)
             $data['bill_quota'] = 0;
         }
         if ($data['bill_type'] == 'cdr99') {
+            $data['bill_quota'] = 0;
+        }
+        if ($data['bill_type'] == 'cdr995') {
             $data['bill_quota'] = 0;
         }
         if ($data['bill_type'] == 'cdr999') {
