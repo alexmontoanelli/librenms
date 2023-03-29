@@ -31,12 +31,14 @@ $poller_start = microtime(true);
 echo "Starting Polling Session ... \n\n";
 
 $query = \LibreNMS\DB\Eloquent::DB()->table('bills');
+$query->orderBy('bill_name');
 
 if (isset($options['b'])) {
     $query->where('bill_id', $options['b']);
 }
 
 $portasProcessadas = [];
+$lastPortCheck = [];
 foreach ($query->get(['bill_id', 'bill_name']) as $bill) {
     echo 'Bill : ' . $bill->bill_name . "\n";
     $bill_id = $bill->bill_id;
