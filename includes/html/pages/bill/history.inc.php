@@ -36,7 +36,7 @@ function showDetails($bill_id, $imgtype, $bill_hist_id)
     }
     $res .= '&amp;width=1190&amp;height=250';
     if (is_numeric($bill_hist_id)) {
-        $res .= '&amp;bill_hist_id=' . $bill_hist_id;
+        $res .= '&amp;reducefactor=0&amp;bill_hist_id=' . $bill_hist_id;
     }
     $res .= '" style="margin: 15px 5px 25px 5px;" />';
 

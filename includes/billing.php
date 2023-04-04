@@ -282,7 +282,7 @@ function getBillingBitsGraphData($bill_id, $from, $to, $reducefactor)
     $tot_data = [];
     $ticks = [];
 
-    if (! isset($reducefactor) || ! is_numeric($reducefactor) || $reducefactor < 1) {
+    if (! isset($reducefactor) || ! is_numeric($reducefactor) || $reducefactor < 1 && $reducefactor > 0) {
         // Auto calculate reduce factor
         $expectedpoints = ceil(($to - $from) / 300);
         $desiredpoints = 400;
