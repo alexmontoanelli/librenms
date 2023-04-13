@@ -49,6 +49,7 @@ foreach ($query->get(['bill_id', 'bill_name']) as $bill) {
     $delta = 0;
     $in_delta = 0;
     $out_delta = 0;
+    $usandoMetricaAnterior = false;
     foreach ($port_list as $port_data) {
         $port_id = $port_data['port_id'];
         $host = $port_data['hostname'];
@@ -56,7 +57,7 @@ foreach ($query->get(['bill_id', 'bill_name']) as $bill) {
 
         echo "  Polling ${port_data['ifName']} (${port_data['ifDescr']}) on ${port_data['hostname']}\n";
 
-        if (key_exists($port_id, $portasProcessadas)){
+        if (array_key_exists($port_id, $portasProcessadas)) {
             $port_data['in_measurement'] = $portasProcessadas[$port_id][0];
             $port_data['out_measurement'] = $portasProcessadas[$port_id][1];
         } else {
@@ -77,18 +78,22 @@ foreach ($query->get(['bill_id', 'bill_name']) as $bill) {
 
             if ($port_data['ifSpeed'] > 0 && (delta_to_bits($port_data['in_measurement'], $tmp_period) - delta_to_bits($port_data['last_in_measurement'], $tmp_period)) > $port_data['ifSpeed']) {
                 $port_data['in_delta'] = $port_data['last_in_delta'];
+                $usandoMetricaAnterior = true;
             } elseif ($port_data['in_measurement'] >= $port_data['last_in_measurement']) {
                 $port_data['in_delta'] = ($port_data['in_measurement'] - $port_data['last_in_measurement']);
             } else {
                 $port_data['in_delta'] = $port_data['last_in_delta'];
+                $usandoMetricaAnterior = true;
             }
 
             if ($port_data['ifSpeed'] > 0 && (delta_to_bits($port_data['out_measurement'], $tmp_period) - delta_to_bits($port_data['last_out_measurement'], $tmp_period)) > $port_data['ifSpeed']) {
                 $port_data['out_delta'] = $port_data['last_out_delta'];
+                $usandoMetricaAnterior = true;
             } elseif ($port_data['out_measurement'] >= $port_data['last_out_measurement']) {
                 $port_data['out_delta'] = ($port_data['out_measurement'] - $port_data['last_out_measurement']);
             } else {
                 $port_data['out_delta'] = $port_data['last_out_delta'];
+                $usandoMetricaAnterior = true;
             }
         } else {
             $port_data['in_delta'] = '0';
@@ -130,7 +135,11 @@ foreach ($query->get(['bill_id', 'bill_name']) as $bill) {
         $prev_in_delta = $last_data['in_delta'];
         $prev_out_delta = $last_data['out_delta'];
         $prev_timestamp = $last_data['timestamp'];
-        $period = dbFetchCell("SELECT UNIX_TIMESTAMP(CURRENT_TIMESTAMP()) - UNIX_TIMESTAMP('" . $prev_timestamp . "')");
+        if ($usandoMetricaAnterior) {
+            $period = $last_data['period'];
+        } else {
+            $period = dbFetchCell("SELECT UNIX_TIMESTAMP(CURRENT_TIMESTAMP()) - UNIX_TIMESTAMP('" . $prev_timestamp . "')");
+        }
     } else {
         $prev_delta = '0';
         $period = '0';

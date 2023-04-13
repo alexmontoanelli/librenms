@@ -104,12 +104,13 @@ function getLastPortCounter($port_id, $bill_id)
 function getLastMeasurement($bill_id)
 {
     $return = [];
-    $row = dbFetchRow('SELECT timestamp,delta,in_delta,out_delta FROM bill_data WHERE bill_id = ? ORDER BY timestamp DESC LIMIT 1', [$bill_id]);
+    $row = dbFetchRow('SELECT timestamp,delta,in_delta,out_delta,period FROM bill_data WHERE bill_id = ? ORDER BY timestamp DESC LIMIT 1', [$bill_id]);
     if (! is_null($row)) {
         $return['delta'] = $row['delta'];
         $return['in_delta'] = $row['in_delta'];
         $return['out_delta'] = $row['out_delta'];
         $return['timestamp'] = $row['timestamp'];
+        $return['period'] = $row['period'];
         $return['state'] = 'ok';
     } else {
         $return['state'] = 'failed';
