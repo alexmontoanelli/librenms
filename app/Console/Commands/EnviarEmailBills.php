@@ -44,8 +44,8 @@ class EnviarEmailBills extends Command
         $urlApi =  env('W8_LIBRENMS_URL', 'http://librenms.w8telecom.com.br');
         $token = env('W8_LIBRENMS_TOKEN','5729ebef0827600d97e1339f2270d9b3');
 
-        $_billsIgnorar = env('W8_LIBRENMS_BILL_IGNORAR','');
-        $billsIgnorar = collect(explode(',', $_billsIgnorar));
+        $_billsEnviar = env('W8_LIBRENMS_BILL_ENVIAR','');
+        $billsEnviar = collect(explode(',', $_billsEnviar));
 
         $bills = \Http::
             withHeaders(['X-Auth-Token' => $token])
@@ -54,7 +54,7 @@ class EnviarEmailBills extends Command
 
         foreach ($bills['bills'] as $bill){
 
-            if ($billsIgnorar->contains($bill['bill_id'])){
+            if (!$billsEnviar->contains($bill['bill_id'])){
                 continue;
             }
 
@@ -70,8 +70,8 @@ class EnviarEmailBills extends Command
     private function _processaBill($bill, $urlApi, $token){
 
 
-            if (env('W8_MAIL_PRODUCAO', false) == false)
-                if ($bill['bill_id'] != 13) return;
+        if (env('W8_MAIL_PRODUCAO', false) == false)
+            if ($bill['bill_id'] != 13) return;
 
         $this->info('Processando bill ' . $bill['bill_name']);
 
