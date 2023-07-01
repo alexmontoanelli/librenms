@@ -91,7 +91,7 @@ class EnviarEmailBills extends Command
             return;
         }
 
-        array_shift($history);
+        //array_shift($history);
 
         $history = array_slice($history, 0, 13);
 
