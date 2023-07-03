@@ -245,7 +245,7 @@ function getPeriod($bill_id, $datefrom, $dateto)
 
 function getBillingHistoryBitsGraphData($bill_id, $bill_hist_id, $reducefactor)
 {
-    $histrow = dbFetchRow('SELECT UNIX_TIMESTAMP(bill_datefrom) as `from`, UNIX_TIMESTAMP(bill_dateto) AS `to`, rate_95th, rate_average, bill_type FROM bill_history WHERE bill_id = ? AND bill_hist_id = ?', [$bill_id, $bill_hist_id]);
+    $histrow = dbFetchRow('SELECT UNIX_TIMESTAMP(bill_datefrom) as `from`, UNIX_TIMESTAMP(bill_dateto) AS `to`, rate_95th, rate_average, bill_type,dir_95th FROM bill_history WHERE bill_id = ? AND bill_hist_id = ?', [$bill_id, $bill_hist_id]);
 
     if (is_null($histrow)) {
         return null;
@@ -257,6 +257,10 @@ function getBillingHistoryBitsGraphData($bill_id, $bill_hist_id, $reducefactor)
     $graph_data['rate_95th'] = $histrow['rate_95th'];
     $graph_data['rate_average'] = $histrow['rate_average'];
     $graph_data['bill_type'] = $histrow['bill_type'];
+    $graph_data['rate_95th']     = $histrow['rate_95th'];
+    $graph_data['rate_average']  = $histrow['rate_average'];
+    $graph_data['bill_type']     = $histrow['bill_type'];
+    $graph_data['dir_95th']     = $histrow['dir_95th'];
 
     return $graph_data;
 }
