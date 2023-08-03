@@ -91,7 +91,7 @@ class EnviarEmailBills extends Command
             return;
         }
 
-        $history = collect($history)->sortByDesc->bill_dateto->take(13);
+        $history = collect($history)->sortByDesc->bill_dateto->slice(1,13)->values();
 
         if (count($history) == 0){
             $this->warn('Sem historico (2)');
