@@ -91,9 +91,7 @@ class EnviarEmailBills extends Command
             return;
         }
 
-        //array_shift($history);
-
-        $history = array_slice($history, 0, 13);
+        $history = collect($history)->sortByDesc->bill_dateto->take(13);
 
         if (count($history) == 0){
             $this->warn('Sem historico (2)');
@@ -118,7 +116,11 @@ class EnviarEmailBills extends Command
 
         $remotePath =  \Storage::disk('public')->url($fileName);
 
-        $this->_makeEmail($bill, $history, $localPath, $remotePath);
+        foreach($history as $hist){
+            $this->info("\t" . $hist['bill_datefrom']);
+        }
+
+        //$this->_makeEmail($bill, $history, $localPath, $remotePath);
 
     }
 
